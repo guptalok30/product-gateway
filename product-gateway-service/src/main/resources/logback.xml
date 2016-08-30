@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property name="APP_NAME" value="product-gateway-service"/>
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+    <!-- prevent /tmp/spring.log -->
+    <property name="LOG_FILE"
+              value="/dev/null"/>
+
+    <property name="METRICS_LOG_PATTERN"
+              value="%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ} app_name=${APP_NAME}, %msg%n"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="METRICS"
+              class="ch.qos.logback.core.FileAppender">
+        <file>${LOG_DIR_PREFIX}/${APP_NAME}/metrics.log</file>
+        <encoder>
+            <pattern>${METRICS_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- metrics logging -->
+
+    <logger name="metrics" level="INFO" additivity="false">
+        <appender-ref ref="METRICS"/>
+    </logger>
+
+    <root level="INFO">
+    </root>
+</configuration>

@@ -1,0 +1,10 @@
+spring:
+  groovy.template.check-template-location: false
+server:
+  context-path: ''
+  port: 0
+management:
+  port: 0
+application:
+  name: product-gateway-service
+  displayName: Product Gateway Service

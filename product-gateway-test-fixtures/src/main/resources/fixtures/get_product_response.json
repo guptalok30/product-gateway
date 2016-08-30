@@ -1,0 +1,8 @@
+{
+  "id":1234,
+  "name":"My Test Product",
+  "current_price":{
+    "value":12.00,
+    "currency_code":"USD"
+  }
+}

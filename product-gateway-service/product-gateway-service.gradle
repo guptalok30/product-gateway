@@ -1,0 +1,44 @@
+apply plugin: 'spring-boot'
+apply plugin: 'application'
+
+description = 'Product Gateway API'
+
+mainClassName = "com.test.product.gateway.impl.ProductGatewayApp"
+
+run {
+    // support passing system properties via command line to override -Dspring.profiles.active=local
+    jvmArgs = ["-Dspring.profiles.active=${System.properties['spring.profiles.active'] ?: 'dev'}"]
+}
+
+
+dependencies {
+    compile project(':product-gateway-client')
+
+    // dependencies
+    compile "com.fasterxml.uuid:java-uuid-generator:${uuidGeneratorVersion}"
+
+    // Spring dependencies
+    compile "org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}"
+    compile "org.springframework.boot:spring-boot-starter-jetty:${springBootVersion}"
+    compile "org.springframework.boot:spring-boot-starter-parent:${springBootVersion}"
+    compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}") {
+        exclude module: 'spring-boot-starter-tomcat'
+    }
+    compile 'javax.inject:javax.inject:1'
+    compile "com.datastax.cassandra:cassandra-driver-core:${cassandraVersion}"
+
+    //metrics
+    compile("com.ryantenney.metrics:metrics-spring:${springMetricsVersion}") {
+        exclude group: 'com.codahale.metrics'
+        exclude group: 'org.springframework'
+    }
+
+    // Swagger
+     compile "org.ajar:swagger-spring-mvc-ui:${swaggerUiVersion}"
+     compile("com.mangofactory:swagger-springmvc:${swaggerMvcVersion}") {
+        exclude group: 'org.mockito'
+    }
+
+    // test dependencies
+    testCompile "com.jayway.restassured:rest-assured:${restAssuredVersion}"
+}

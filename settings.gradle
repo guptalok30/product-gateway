@@ -1,0 +1,15 @@
+rootProject.name = 'product-gateway'
+
+include ':product-gateway-api',
+        ':product-gateway-client',
+        ':product-gateway-service',
+        ':product-gateway-test-fixtures'
+
+def setBuildFile(project) {
+    project.buildFileName = "${project.name}.gradle"
+    project.children.each {
+        setBuildFile(it)
+    }
+}
+
+setBuildFile(rootProject)

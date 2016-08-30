@@ -1,0 +1,144 @@
+buildscript {
+    repositories {
+        //mavenLocal()
+        mavenCentral()
+        jcenter()
+    }
+
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:1.2.8.RELEASE"
+    }
+}
+
+subprojects {
+    apply plugin: 'groovy'
+    apply plugin: 'java'
+    apply plugin: 'eclipse'
+    apply plugin: 'idea'
+    apply plugin: 'codenarc'
+    apply plugin: 'maven-publish'
+
+    repositories {
+       //mavenLocal()
+        mavenCentral()
+ 	    jcenter()
+    }
+    
+    group = 'com.target'
+    version = '0.0.1'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    
+    codenarcMain {
+        configFile = file("$rootDir/gradle/codenarc.groovy")
+    }
+
+    codenarcTest {
+  	    configFile = file("$rootDir/gradle/codenarcTest.groovy")
+    }
+
+    codenarc {
+        toolVersion = '0.25.1'
+        reportFormat = 'html'
+    }
+
+    tasks.withType(CodeNarc) { codeNarcTask ->
+       codeNarcTask.ignoreFailures = true
+    }
+
+    dependencies {
+        if (project.name != 'product-gateway-api') {
+            compile project(':product-gateway-api')
+        }
+
+        // dependencies
+        compile "javax.validation:validation-api:${javaxValidationVersion}"
+        compile "org.codehaus.groovy:groovy-all:${groovyVersion}"
+        compile "org.slf4j:slf4j-api:${slf4jVersion}"
+        compile 'joda-time:joda-time:2.3'
+        compile "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:${jacksonDataVersion}"
+        compile("com.fasterxml.jackson.datatype:jackson-datatype-joda:${jacksonDataVersion}") {
+            exclude module: 'joda-time'
+        }
+        compile "io.dropwizard.metrics:metrics-core:3.1.2"
+        compile "com.squareup.okhttp:okhttp:${okHttpVersion}"
+        compile "com.squareup.okhttp:okhttp-urlconnection:${okHttpVersion}"
+        compile("com.squareup.retrofit:retrofit:${retrofitVersion}") {
+            exclude group: 'com.google.code.gson', module: 'gson'
+        }
+        compile "com.squareup.retrofit:converter-jackson:${retrofitVersion}"
+        compile "org.slf4j:jcl-over-slf4j:${slf4jVersion}"
+
+        // test dependencies
+        testCompile "cglib:cglib-nodep:${cgLibVersion}"
+        testCompile "junit:junit:${junitVersion}"
+        testCompile "org.objenesis:objenesis:${objenesisVersion}"
+        testCompile "org.spockframework:spock-spring:${spockVersion}"
+        testCompile "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
+
+        
+        if (project.name != 'product-gateway-test-fixtures') {
+            testCompile project(':product-gateway-test-fixtures')
+        }
+    }
+
+    idea {
+        module {
+            inheritOutputDirs = false
+            outputDir = file("$buildDir/classes/main/")
+        }
+    }
+
+    // Enforce CompileStatic globally
+    compileGroovy {
+        configure(groovyOptions) {
+            configurationScript = file("$rootDir/gradle/compiler-config.groovy")
+        }
+    }
+
+    jar {
+        manifest {
+            attributes 'Implementation-Title': '${project.name}',
+                     'Implementation-Version': version,
+                     'Built-By': System.getProperty('user.name'),
+                     'Built-Date': new Date(),
+                     'Built-JDK': System.getProperty('java.version'),
+                     'Built-Gradle': gradle.gradleVersion
+      }
+   }
+
+   tasks.create('sourceJar', Jar) {
+        description 'An archive of the source code for Maven Central'
+        classifier 'sources'
+        from sourceSets.main.allSource
+   }
+
+   tasks.create('javadocJar', Jar) {
+        description 'An archive of the JavaDocs for Maven Central'
+        classifier 'javadoc'
+        from tasks.javadoc
+   }
+
+   publishing {
+        publications {
+            main(MavenPublication) {
+                from components.java
+                artifact tasks.sourceJar
+                artifact tasks.javadocJar
+            }
+        }
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.3'
+}
+
+task build() {
+    doFirst {
+        new File('build').mkdir()
+        file('build/version').text = version.toString()
+    }
+}

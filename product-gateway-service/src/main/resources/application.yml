@@ -1,0 +1,28 @@
+spring:
+  profiles.active: dev
+  messages:
+    basename: ValidationMessages
+server:
+  context-path: ''
+  port: 8080
+management:
+  port: 8099
+application:
+  name: product-gateway-service
+  displayName: Product Gateway Service
+productApi:
+  productApiUri: https://api.target.com
+  fields: descriptions
+  idType: TCIN
+  apiKey: 43cJWpLjH8Z8oR18KdrZDBKAgLLQKJjz
+cassandra:
+  nodeAddress: localhost
+  defaultQueryConsistency: ONE
+  defaultUpdateConsistency: ONE
+  updateTimeoutMillis: 5000
+  keyspaces:
+    - name: product
+      createCommand: CREATE KEYSPACE product WITH replication = {'class':'SimpleStrategy', 'replication_factor':2};
+      tables:
+        -  name: product_price
+           createCommand: CREATE TABLE product.product_price(pid bigint, currency text, price text, update_time timestamp, PRIMARY KEY(pid));
